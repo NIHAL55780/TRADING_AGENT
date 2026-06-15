@@ -99,19 +99,19 @@ def _parse_json_response(raw_response: str) -> dict:
     raise json.JSONDecodeError("No valid JSON object found", raw_response, 0)
 
 
-def ask_groq(prompt: str, system_prompt: Optional[str] = None) -> str:
+def ask_groq(prompt: str, system_prompt: Optional[str] = None, timeout: int = 30) -> str:
     if not prompt or not prompt.strip():
         return "Error: Prompt cannot be empty."
 
-    api_key = os.getenv("GROQ_API_KEY")
+    api_key = os.getenv("GROQ_API_KEY") 
 
     if not api_key:
-        return "Error: GROQ_API_KEY is missing."
+        return "Error: GROQ_API_KEY is missing. Set GROQ_API_KEY in .env file."
 
     model = os.getenv("GROQ_MODEL", "llama-3.1-8b-instant")
 
     try:
-        client = Groq(api_key=api_key)
+        client = Groq(api_key=api_key, timeout=timeout)
 
         response = client.chat.completions.create(
             model=model,
@@ -132,7 +132,10 @@ def ask_groq(prompt: str, system_prompt: Optional[str] = None) -> str:
         return response.choices[0].message.content.strip()
 
     except Exception as e:
-        return f"Error calling Groq API: {str(e)}"
+        error_msg = str(e)
+        if "timed out" in error_msg.lower() or "timeout" in error_msg.lower():
+            return f"Error calling Groq API: Request timed out (check internet connection or API status)."
+        return f"Error calling Groq API: {error_msg}"
 
 
 def ask_groq_json(prompt: str, system_prompt: Optional[str] = None) -> dict:

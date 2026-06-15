@@ -1,8 +1,13 @@
-fastapi uvicorn
-langgraph langchain
+fastapi
+uvicorn
+langgraph
+langchain
 yfinance
-pandas numpy ta
+pandas
+numpy
+ta
 pydantic
 pymongo
 python-dotenv
-groq langchain-groq
+groq
+langchain-groq
