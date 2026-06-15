@@ -4,16 +4,24 @@ from typing import TypedDict
 
 
 class TradingState(TypedDict):
-    """State shared across trading workflow nodes.
-    
-    Attributes:
-        ticker: Stock symbol (e.g., "AAPL")
-        fundamental_report: Output from fundamental analysis agent
-        technical_report: Output from technical analysis agent
-        merged: Flag indicating if parallel reports have been merged
-    """
+    """State shared across the multi-agent trading workflow."""
 
     ticker: str
+
     fundamental_report: dict
     technical_report: dict
-    merged: bool
+    news_report: dict
+    sentiment_report: dict
+
+    analysts_merged: bool
+
+    bull_report: dict
+    bear_report: dict
+
+    research_merged: bool
+
+    trader_report: dict
+    risk_report: dict
+    fund_manager_report: dict
+
+    final_decision: str

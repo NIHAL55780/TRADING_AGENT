@@ -1,4 +1,10 @@
 import math
+import sys
+from pathlib import Path
+
+BACKEND_ROOT = Path(__file__).resolve().parents[1]
+if str(BACKEND_ROOT) not in sys.path:
+    sys.path.insert(0, str(BACKEND_ROOT))
 
 import numpy as np
 import pandas as pd
@@ -6,6 +12,8 @@ import yfinance as yf
 from ta.momentum import RSIIndicator
 from ta.trend import EMAIndicator, MACD, SMAIndicator
 from ta.volatility import BollingerBands
+
+from tools.finnhub_data import get_finnhub_quote
 
 MIN_HISTORY_ROWS = 50
 
@@ -95,12 +103,24 @@ def get_technical_indicators(ticker: str, period: str = "1y") -> dict:
         if latest_close is None:
             return {"error": f"Unable to calculate indicators for ticker '{symbol}'"}
 
+        live_price = latest_close
+        price_source = "historical"
+
+        finnhub_quote = get_finnhub_quote(symbol)
+        if "error" not in finnhub_quote:
+            finnhub_price = _safe_float(finnhub_quote.get("current_price"))
+            if finnhub_price is not None:
+                live_price = finnhub_price
+                price_source = "Finnhub"
+
         trend = _determine_trend(latest_close, sma_50, macd, macd_signal)
 
         return {
             "ticker": symbol,
             "period": period,
             "latest_close": latest_close,
+            "live_price": live_price,
+            "price_source": price_source,
             "sma_20": sma_20,
             "sma_50": sma_50,
             "ema_20": ema_20,

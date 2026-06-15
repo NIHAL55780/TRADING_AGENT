@@ -11,3 +11,5 @@ pymongo
 python-dotenv
 groq
 langchain-groq
+requests
+websocket-client
